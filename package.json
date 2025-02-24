@@ -1,0 +1,25 @@
+{
+  "name": "accenture_tech_challenge",
+  "version": "1.0.0",
+  "description": "Desafio tecnico para o processo seletivo da Accenture",
+  "main": "index.js",
+  "scripts": {
+    "test": "cypress open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DinoSaulo/Accenture_tech_challenge.git"
+  },
+  "keywords": [
+    "cypress"
+  ],
+  "author": "Saulo Barros",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DinoSaulo/Accenture_tech_challenge/issues"
+  },
+  "homepage": "https://github.com/DinoSaulo/Accenture_tech_challenge#readme",
+  "dependencies": {
+    "cypress": "^14.0.3"
+  }
+}
