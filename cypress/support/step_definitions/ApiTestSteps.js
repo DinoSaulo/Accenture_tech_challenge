@@ -1,6 +1,11 @@
 
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import AccountRoutes from '../routes/AccountRoutes'
+import BookStoreRoutes from '../routes/BookStoreRoutes'
 import jwt from 'jsonwebtoken';
+
+const accountRoutes = new AccountRoutes();
+const bookStoreRoutes = new BookStoreRoutes();
 
 /* global Given, Then, When */
 let requestResponse = {}
@@ -9,10 +14,22 @@ let token;
 let books;
 let username = `${Cypress.env('username')}`
 
+// =====================================
+// 🔹 FUNÇÕES GENÉRICAS
+// =====================================
+
+Then("o status da resposta deve ser {string}", (accountRoutes) => {
+  expect(requestResponse.status).to.eq(parseInt(accountRoutes));
+})
+
+// =====================================
+// 🔹 FUNÇÕES DO PRIMEIRO SCENARIO
+// =====================================
+
 Given("que eu envio uma solicitação para criar um usuário com um nome e senha válidos", () => {
     cy.request({
       method: 'POST',
-      url: `${Cypress.config('baseUrl')}/Account/v1/User`,
+      url: `${Cypress.config('baseUrl')}${accountRoutes.post_createUser()}`,
       body: {
         userName: username.replace("DATE", Date.now()),
         password: `${Cypress.env('password')}`
@@ -22,20 +39,21 @@ Given("que eu envio uma solicitação para criar um usuário com um nome e senha
     });
 })
 
-Then("o status da resposta deve ser 201", () => {
-    expect(requestResponse.status).to.eq(201);
-})
 
 Then("o corpo da resposta deve conter o ID do usuário gerado", () => {
     expect(requestResponse.body.userID).to.not.be.null;
 })
+
+// =====================================
+// 🔹 FUNÇÕES DO SEGUNDO SCENARIO
+// =====================================
 
 When("eu envio uma solicitação para gerar um token de acesso com as credenciais do usuário", () => {
   const temp_user = username.replace("DATE", Date.now())
   let requestResponse2
   cy.request({
     method: 'POST',
-    url: `${Cypress.config('baseUrl')}/Account/v1/User`,
+    url: `${Cypress.config('baseUrl')}${accountRoutes.post_createUser()}`,
     body: {
       userName: temp_user,
       password: `${Cypress.env('password')}`
@@ -44,7 +62,7 @@ When("eu envio uma solicitação para gerar um token de acesso com as credenciai
 
   cy.request({
     method: 'POST',
-    url: `${Cypress.config('baseUrl')}/Account/v1/GenerateToken`,
+    url: `${Cypress.config('baseUrl')}${accountRoutes.post_generateToken()}`,
     body: {
       userName: temp_user,
       password: `${Cypress.env('password')}`
@@ -52,10 +70,6 @@ When("eu envio uma solicitação para gerar um token de acesso com as credenciai
   }).then((response) => {
     requestResponse = response
   });
-})
-
-Then("o status da resposta deve ser 200", () => {
-  expect(requestResponse.status).to.eq(200);
 })
 
 Then("o corpo da resposta deve conter um token válido", () => {
@@ -66,6 +80,10 @@ Then("o corpo da resposta deve conter um token válido", () => {
   expect(decoded).to.have.property('iat'); // Validate issued-at timestamp
 })
 
+// =====================================
+// 🔹 FUNÇÕES DO TERCEIRO SCENARIO
+// =====================================
+
 Then("o corpo da resposta deve indicar que o usuário está autorizado", () => {
   cy.fixture('messages').then((messages) => {
     expect(requestResponse.body.result).to.be.equal(messages.authorized_msg);
@@ -73,12 +91,16 @@ Then("o corpo da resposta deve indicar que o usuário está autorizado", () => {
   })
 })
 
+// =====================================
+// 🔹 FUNÇÕES DO QUARTO SCENARIO
+// =====================================
+
 Given("que a API está disponível", () => {})
 
 When("eu envio uma solicitação para listar os livros disponíveis", () => {
   cy.request({
     method: 'GET',
-    url: `${Cypress.config('baseUrl')}/BookStore/v1/Books`,
+    url: `${Cypress.config('baseUrl')}${bookStoreRoutes.get_books()}`,
   }).then((response) => {
     requestResponse = response
   });
@@ -88,11 +110,15 @@ Then("o corpo da resposta deve conter uma lista de livros", () => {
   expect(requestResponse.body.books).to.be.an('array').that.is.not.empty;
 })
 
+// =====================================
+// 🔹 FUNÇÕES DO QUINTO SCENARIO
+// =====================================
+
 Given("que o usuário está logado e tem um token de acesso válido", () => {
   const temp_user = username.replace("DATE", Date.now())
   cy.request({
     method: 'POST',
-    url: `${Cypress.config('baseUrl')}/Account/v1/User`,
+    url: `${Cypress.config('baseUrl')}${accountRoutes.post_createUser()}`,
     body: {
       userName: temp_user,
       password: `${Cypress.env('password')}`
@@ -101,7 +127,7 @@ Given("que o usuário está logado e tem um token de acesso válido", () => {
     userId = response.body.userID
     cy.request({
       method: 'POST',
-      url: `${Cypress.config('baseUrl')}/Account/v1/GenerateToken`,
+      url: `${Cypress.config('baseUrl')}${accountRoutes.post_generateToken()}`,
       body: {
         userName: temp_user,
         password: `${Cypress.env('password')}`
@@ -115,7 +141,7 @@ Given("que o usuário está logado e tem um token de acesso válido", () => {
 Given("que há livros disponíveis na biblioteca", () => {
   cy.request({
     method: 'GET',
-    url: `${Cypress.config('baseUrl')}/BookStore/v1/Books`,
+    url: `${Cypress.config('baseUrl')}${bookStoreRoutes.get_books()}`,
   }).then((response) => {
     expect(response.body.books).to.be.an('array').that.is.not.empty;
     books = response.body.books
@@ -128,7 +154,7 @@ Given("eu envio uma solicitação para alugar dois livros específicos", () => {
   
   cy.request({
     method: 'POST',
-    url: `${Cypress.config().baseUrl}/BookStore/v1/Books`,
+    url: `${Cypress.config().baseUrl}${bookStoreRoutes.post_books()}`,
     headers: { Authorization: `Bearer ${token}` },
     body: {
       userId: userId,
@@ -147,10 +173,14 @@ Then("o corpo da resposta deve indicar que os livros foram alugados com sucesso"
   expect(requestResponse.body.books[1].isbn).to.be.equals(books[1].isbn);
 })
 
+// =====================================
+// 🔹 FUNÇÕES DO SEXTO SCENARIO
+// =====================================
+
 Given("que o usuário alugou dois livros", () => {
   cy.request({
     method: 'GET',
-    url: `${Cypress.config('baseUrl')}/BookStore/v1/Books`,
+    url: `${Cypress.config('baseUrl')}${bookStoreRoutes.get_books()}`,
   }).then((response) => {
     expect(response.body.books).to.be.an('array').that.is.not.empty;
     books = response.body.books
@@ -159,7 +189,7 @@ Given("que o usuário alugou dois livros", () => {
   const temp_user = username.replace("DATE", Date.now())
   cy.request({
     method: 'POST',
-    url: `${Cypress.config('baseUrl')}/Account/v1/User`,
+    url: `${Cypress.config('baseUrl')}${accountRoutes.post_createUser()}`,
     body: {
       userName: temp_user,
       password: `${Cypress.env('password')}`
@@ -168,7 +198,7 @@ Given("que o usuário alugou dois livros", () => {
     userId = response.body.userID
     cy.request({
       method: 'POST',
-      url: `${Cypress.config('baseUrl')}/Account/v1/GenerateToken`,
+      url: `${Cypress.config('baseUrl')}${accountRoutes.post_generateToken()}`,
       body: {
         userName: temp_user,
         password: `${Cypress.env('password')}`
@@ -176,7 +206,7 @@ Given("que o usuário alugou dois livros", () => {
     }).then((response) => {
       cy.request({
         method: 'POST',
-        url: `${Cypress.config().baseUrl}/BookStore/v1/Books`,
+        url: `${Cypress.config().baseUrl}${bookStoreRoutes.post_books()}`,
         headers: { Authorization: `Bearer ${response.body.token}` },
         body: {
           userId: userId,
@@ -193,7 +223,7 @@ Given("que o usuário alugou dois livros", () => {
 When("eu envio uma solicitação para obter os detalhes do usuário", () => {
   cy.request({
     method: 'GET',
-    url: `${Cypress.config().baseUrl}/Account/v1/User/${userId}`,
+    url: `${Cypress.config().baseUrl}${accountRoutes.get_user(userId)}`,
     headers: { Authorization: `Bearer ${token}` }
   }).then((response) => {
     requestResponse = response
