@@ -23,7 +23,6 @@ module.exports = defineConfig({
           username: "user_DATE",
           password: "Test@123"
         },
-        "chromeWebSecurity": false,
         "video":true,
         "videoCompression": 0,
         "animationDistanceThreshold": 50,
@@ -32,7 +31,10 @@ module.exports = defineConfig({
         "requestTimeout": 30000,
         "reporter": "mochawesome",
         "reporterOptions": {
-            "overwrite": true
+            reportDir: "cypress/reports",
+            overwrite: true,
+            html: true,
+            json: true,
         },
         setupNodeEvents,
     },
