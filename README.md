@@ -45,9 +45,9 @@ cd Accenture_tech_challenge
 npm install
 ```
 
-#### 🔥 Execução dos testes
+### 🔥 Execução dos testes
 
-##### Via CLI
+#### Via CLI
 
 ```bash
 npx cypress run
@@ -81,7 +81,7 @@ Após a execução do comando os testes serão executados e ao final será exibi
     √  All specs passed!                        00:07        6        6        -        -        -
 ```
 
-##### Via GUI
+#### Via GUI
 
 Execute o comando abaixo para que serja aberto a interface gráfica do Cypress
 ```bash
@@ -100,18 +100,23 @@ Após isso a execução dos testes será iniciada como mostrada no vídeo abaixo
 ![switch_de_testes](/cypress/videos/demoqa.feature.gif "Switch de testes")
 
 
-##### Via Github Actions
+#### Via Github Actions
 
-<!--- TODO --->
+A cada commit feito neste repositório os testes são executados automaricamente pelo Github Actions
+
+Atualmente o status ds testes é:
+![tests workflow](https://github.com/DinoSaulo/Accenture_tech_challenge/actions/workflows/ci.yml/badge.svg)
 
 ## 💻 Testes
 
-Atualmente esse projeto possui 6 testes, todos eles estão no arquvo [demoqa.cy.js](./cypress/e2e/demoqa/demoqa.cy.js):
+Atualmente esse projeto possui 6 testes, todos eles estão no arquvo [demoqa.cy.js](./cypress/e2e/demoqa/demoqa.feature):
 
 ## 📶 Reports
 
 O projeto conta com reports automatizados da execução dos testes. Os reports são feitos utilizando o [cypress-mochawesome-reporter](https://www.npmjs.com/package/cypress-mochawesome-reporter).
-Após cada execução do testes um novo report é gerado.
+
+Após cada execução do testes um novo report é gerado. E eles são encontrados em `cypress/reports`, no formato html ou JSON.
+
 ![test_resport](/cypress/reports/mochawesome_print.png "Report da execução dos testes")
 
 ## ❔ Dúvidas
